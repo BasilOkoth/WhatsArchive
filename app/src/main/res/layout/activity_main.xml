@@ -75,7 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
-            android:text="0 messages • 0 contacts"
+            android:text="0 messages • 0 conversations"
             android:textColor="@color/wa_text_muted"
             android:textSize="12sp" />
     </LinearLayout>
@@ -86,7 +86,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/bg_search"
-        android:hint="Search contact or message"
+        android:hint="Search conversation, sender or message"
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:singleLine="true"
@@ -159,7 +159,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="6dp"
-        android:text="CONVERSATIONS — TAP A CONTACT TO OPEN ALL MESSAGES"
+        android:text="CONVERSATIONS — TAP TO OPEN ALL MESSAGES"
         android:textColor="@color/wa_primary_dark" />
 
     <FrameLayout
@@ -184,7 +184,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:padding="30dp"
-            android:text="No matching conversations yet.\nIncoming WhatsApp notifications will be grouped here by contact."
+            android:text="No matching conversations yet.\nIncoming WhatsApp notifications will be grouped by their conversation identity."
             android:textAlignment="center"
             android:textColor="@color/wa_text_muted"
             android:textSize="14sp" />
@@ -195,7 +195,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="4dp"
-        android:text="Private by design • Local encrypted archive • v0.2.2"
+        android:text="Private by design • Local encrypted archive • v0.2.3"
         android:textColor="@color/wa_text_muted"
         android:textSize="10sp" />
 

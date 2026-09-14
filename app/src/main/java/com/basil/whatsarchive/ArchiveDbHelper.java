@@ -6,12 +6,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ArchiveDbHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "whatsarchive.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     private final CryptoManager crypto = new CryptoManager();
 
     public ArchiveDbHelper(Context context) {
@@ -24,6 +27,9 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "package_name TEXT NOT NULL," +
                 "notification_key TEXT," +
+                "conversation_id_enc TEXT," +
+                "conversation_name_enc TEXT," +
+                "participant_name_enc TEXT," +
                 "sender_enc TEXT NOT NULL," +
                 "body_enc TEXT NOT NULL," +
                 "posted_at INTEGER NOT NULL," +
@@ -37,37 +43,92 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Schema is unchanged in v0.2; existing v0.1 archives remain compatible.
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE messages ADD COLUMN conversation_id_enc TEXT");
+            db.execSQL("ALTER TABLE messages ADD COLUMN conversation_name_enc TEXT");
+            db.execSQL("ALTER TABLE messages ADD COLUMN participant_name_enc TEXT");
+        }
     }
 
+    public synchronized long insertMessage(String packageName,
+                                           String notificationKey,
+                                           String conversationId,
+                                           String conversationName,
+                                           String participantName,
+                                           String sender,
+                                           String body,
+                                           long postedAt,
+                                           String fingerprint) {
+        String safeConversationName = clean(conversationName);
+        String safeParticipant = clean(participantName);
+        String safeSender = clean(sender);
+
+        if (safeConversationName.isEmpty()) {
+            safeConversationName = legacyConversationName(safeSender);
+        }
+        if (safeSender.isEmpty()) {
+            safeSender = buildLegacyDisplaySender(safeConversationName, safeParticipant);
+        }
+
+        String safeConversationId = clean(conversationId);
+        if (safeConversationId.isEmpty()) {
+            safeConversationId = deriveLegacyConversationId(
+                    packageName, notificationKey, safeConversationName);
+        }
+
+        ContentValues values = new ContentValues();
+        values.put("package_name", packageName);
+        values.put("notification_key", notificationKey);
+        values.put("conversation_id_enc", crypto.encrypt(safeConversationId));
+        values.put("conversation_name_enc", crypto.encrypt(safeConversationName));
+        values.put("participant_name_enc", crypto.encrypt(safeParticipant));
+        values.put("sender_enc", crypto.encrypt(safeSender));
+        values.put("body_enc", crypto.encrypt(body));
+        values.put("posted_at", postedAt);
+        values.put("fingerprint", fingerprint);
+
+        return getWritableDatabase().insertWithOnConflict(
+                "messages", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    // Backward-compatible overload for old restore/import code paths.
     public synchronized long insertMessage(String packageName,
                                            String notificationKey,
                                            String sender,
                                            String body,
                                            long postedAt,
                                            String fingerprint) {
-        ContentValues values = new ContentValues();
-        values.put("package_name", packageName);
-        values.put("notification_key", notificationKey);
-        values.put("sender_enc", crypto.encrypt(sender));
-        values.put("body_enc", crypto.encrypt(body));
-        values.put("posted_at", postedAt);
-        values.put("fingerprint", fingerprint);
-        return getWritableDatabase().insertWithOnConflict(
-                "messages", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        String conversationName = legacyConversationName(sender);
+        String participantName = legacyParticipantName(sender);
+        String conversationId = deriveLegacyConversationId(
+                packageName, notificationKey, conversationName);
+
+        return insertMessage(
+                packageName,
+                notificationKey,
+                conversationId,
+                conversationName,
+                participantName,
+                sender,
+                body,
+                postedAt,
+                fingerprint
+        );
     }
 
     public synchronized void setSnapshotPath(long id, String path) {
         ContentValues values = new ContentValues();
         values.put("snapshot_path", path);
-        getWritableDatabase().update("messages", values, "id=?", new String[]{String.valueOf(id)});
+        getWritableDatabase().update(
+                "messages", values, "id=?", new String[]{String.valueOf(id)});
     }
 
     public synchronized void setRemovedAt(long id, Long removedAt) {
         ContentValues values = new ContentValues();
         if (removedAt == null) values.putNull("removed_at");
         else values.put("removed_at", removedAt);
-        getWritableDatabase().update("messages", values, "id=?", new String[]{String.valueOf(id)});
+        getWritableDatabase().update(
+                "messages", values, "id=?", new String[]{String.valueOf(id)});
     }
 
     public synchronized void markMostRecentRemoved(String notificationKey, long removedAt) {
@@ -88,7 +149,9 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
         Cursor cursor = getReadableDatabase().query(
                 "messages", null, null, null, null, null, "posted_at DESC");
         try {
-            while (cursor.moveToNext()) result.add(fromCursor(cursor));
+            while (cursor.moveToNext()) {
+                result.add(fromCursor(cursor));
+            }
         } finally {
             cursor.close();
         }
@@ -107,10 +170,94 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
         message.sender = crypto.decrypt(cursor.getString(cursor.getColumnIndexOrThrow("sender_enc")));
         message.body = crypto.decrypt(cursor.getString(cursor.getColumnIndexOrThrow("body_enc")));
         message.postedAt = cursor.getLong(cursor.getColumnIndexOrThrow("posted_at"));
+
         int removedIndex = cursor.getColumnIndexOrThrow("removed_at");
         message.removedAt = cursor.isNull(removedIndex) ? null : cursor.getLong(removedIndex);
         message.snapshotPath = cursor.getString(cursor.getColumnIndexOrThrow("snapshot_path"));
         message.fingerprint = cursor.getString(cursor.getColumnIndexOrThrow("fingerprint"));
+
+        int conversationIdIndex = cursor.getColumnIndex("conversation_id_enc");
+        int conversationNameIndex = cursor.getColumnIndex("conversation_name_enc");
+        int participantNameIndex = cursor.getColumnIndex("participant_name_enc");
+
+        message.conversationId = conversationIdIndex >= 0 && !cursor.isNull(conversationIdIndex)
+                ? crypto.decrypt(cursor.getString(conversationIdIndex)) : "";
+        message.conversationName = conversationNameIndex >= 0 && !cursor.isNull(conversationNameIndex)
+                ? crypto.decrypt(cursor.getString(conversationNameIndex)) : "";
+        message.participantName = participantNameIndex >= 0 && !cursor.isNull(participantNameIndex)
+                ? crypto.decrypt(cursor.getString(participantNameIndex)) : "";
+
+        // Legacy v0.1/v0.2 rows: recover the conversation/member split from
+        // "Group — Member", then use the stored Android notification key as
+        // the strongest remaining identity hint.
+        if (clean(message.conversationName).isEmpty()) {
+            message.conversationName = legacyConversationName(message.sender);
+        }
+        if (clean(message.participantName).isEmpty()) {
+            message.participantName = legacyParticipantName(message.sender);
+        }
+        if (clean(message.conversationId).isEmpty()) {
+            message.conversationId = deriveLegacyConversationId(
+                    message.packageName,
+                    message.notificationKey,
+                    message.conversationName
+            );
+        }
+
         return message;
+    }
+
+    private String legacyConversationName(String sender) {
+        String value = clean(sender);
+        if (value.isEmpty()) return "Unknown chat";
+        int split = value.indexOf(" — ");
+        return split > 0 ? value.substring(0, split).trim() : value;
+    }
+
+    private String legacyParticipantName(String sender) {
+        String value = clean(sender);
+        int split = value.indexOf(" — ");
+        if (split > 0 && split + 3 < value.length()) {
+            return value.substring(split + 3).trim();
+        }
+        return "";
+    }
+
+    private String buildLegacyDisplaySender(String conversationName, String participantName) {
+        String conversation = clean(conversationName);
+        if (conversation.isEmpty()) conversation = "Unknown chat";
+        String participant = clean(participantName);
+        if (!participant.isEmpty() && !participant.equalsIgnoreCase(conversation)) {
+            return conversation + " — " + participant;
+        }
+        return conversation;
+    }
+
+    private String deriveLegacyConversationId(String packageName,
+                                              String notificationKey,
+                                              String conversationName) {
+        String pkg = clean(packageName);
+        String key = clean(notificationKey);
+        if (!key.isEmpty()) {
+            return "legacy-key:" + sha256(pkg + "|" + key);
+        }
+        return "legacy-name:" + sha256(
+                pkg + "|" + clean(conversationName).toLowerCase(Locale.ROOT));
+    }
+
+    private String clean(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String sha256(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) hex.append(String.format(Locale.US, "%02x", b));
+            return hex.toString();
+        } catch (Exception e) {
+            return Integer.toHexString(value.hashCode());
+        }
     }
 }

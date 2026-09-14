@@ -22,7 +22,8 @@ public class ArchiveMessageAdapter extends BaseAdapter {
 
     private final LayoutInflater inflater;
     private final List<ArchiveMessage> items = new ArrayList<>();
-    private final SimpleDateFormat format = new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault());
+    private final SimpleDateFormat format =
+            new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault());
     private final ActionListener listener;
 
     public ArchiveMessageAdapter(Context context) {
@@ -47,8 +48,10 @@ public class ArchiveMessageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
+
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.row_message, parent, false);
+
             holder = new ViewHolder();
             holder.root = convertView.findViewById(R.id.rowRoot);
             holder.sender = convertView.findViewById(R.id.rowSender);
@@ -58,35 +61,59 @@ public class ArchiveMessageAdapter extends BaseAdapter {
             holder.timeline = convertView.findViewById(R.id.rowTimeline);
             holder.share = convertView.findViewById(R.id.rowShare);
             holder.snapshot = convertView.findViewById(R.id.rowSnapshot);
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
         ArchiveMessage message = getItem(position);
-        String preview = message.body == null ? "" : message.body.replace('\n', ' ');
-        if (preview.length() > 180) preview = preview.substring(0, 177) + "...";
-        String app = "com.whatsapp.w4b".equals(message.packageName) ? "WA Business" : "WhatsApp";
 
-        holder.sender.setText(message.sender == null ? "Unknown chat" : message.sender);
+        String preview = message.body == null
+                ? ""
+                : message.body.replace('\n', ' ');
+
+        if (preview.length() > 180) {
+            preview = preview.substring(0, 177) + "...";
+        }
+
+        String app = "com.whatsapp.w4b".equals(message.packageName)
+                ? "WA Business"
+                : "WhatsApp";
+
+        // In a group thread, show the individual member.
+        // In a direct chat, this remains the contact/conversation name.
+        holder.sender.setText(message.getMessageSenderLabel());
         holder.body.setText(preview);
-        holder.meta.setText(format.format(new Date(message.postedAt)) + "  •  " + app);
-        holder.timeline.setText(message.removedAt == null
-                ? "Received  ✓   Archived  ✓"
-                : "Received  ✓   Archived  ✓   Notification removed  !");
+        holder.meta.setText(
+                format.format(new Date(message.postedAt)) +
+                        "  •  " +
+                        app
+        );
+
+        holder.timeline.setText(
+                message.removedAt == null
+                        ? "Received  ✓   Archived  ✓"
+                        : "Received  ✓   Archived  ✓   Notification removed  !"
+        );
 
         if (message.isPossiblyDeleted()) {
             holder.badge.setVisibility(View.VISIBLE);
             holder.badge.setText("POSSIBLE DELETION");
-            holder.badge.setBackgroundResource(R.drawable.bg_badge_warning);
+            holder.badge.setBackgroundResource(
+                    R.drawable.bg_badge_warning);
         } else {
             holder.badge.setVisibility(View.GONE);
         }
 
         if (listener != null) {
-            holder.root.setOnClickListener(v -> listener.onOpen(message));
-            holder.share.setOnClickListener(v -> listener.onShare(message));
-            holder.snapshot.setOnClickListener(v -> listener.onSnapshot(message));
+            holder.root.setOnClickListener(
+                    v -> listener.onOpen(message));
+            holder.share.setOnClickListener(
+                    v -> listener.onShare(message));
+            holder.snapshot.setOnClickListener(
+                    v -> listener.onSnapshot(message));
+
             holder.share.setVisibility(View.VISIBLE);
             holder.snapshot.setVisibility(View.VISIBLE);
         } else {
