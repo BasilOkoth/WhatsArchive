@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="wa_bg">#F4F7F5</color>
+    <color name="wa_surface">#FFFFFF</color>
+    <color name="wa_primary">#0BA360</color>
+    <color name="wa_primary_dark">#075B3A</color>
+    <color name="wa_primary_soft">#E8F8F0</color>
+    <color name="wa_text">#10251D</color>
+    <color name="wa_sender_name">#087443</color>
+    <color name="wa_message_body">#24352E</color>
+    <color name="wa_text_muted">#63766D</color>
+    <color name="wa_border">#DDE8E2</color>
+    <color name="wa_warning">#A85A00</color>
+    <color name="wa_warning_bg">#FFF2DA</color>
+    <color name="wa_danger">#B42318</color>
+    <color name="wa_danger_bg">#FDECEC</color>
+    <color name="wa_success">#087443</color>
+    <color name="wa_success_bg">#E7F8EF</color>
+    <color name="wa_white">#FFFFFF</color>
+</resources>

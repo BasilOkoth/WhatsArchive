@@ -10,8 +10,8 @@ android {
         applicationId = "com.basil.whatsarchive"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.1.2"
+        versionCode = 5
+        versionName = "0.2.1"
     }
 
     compileOptions {
@@ -28,4 +28,8 @@ android {
             )
         }
     }
+}
+
+dependencies {
+    implementation("androidx.biometric:biometric:1.1.0")
 }

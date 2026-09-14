@@ -1,6 +1,7 @@
 package com.basil.whatsarchive;
 
 import android.app.Notification;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.service.notification.NotificationListenerService;
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class WhatsAppNotificationListener extends NotificationListenerService {
+    public static final String ACTION_ARCHIVE_UPDATED = "com.basil.whatsarchive.ARCHIVE_UPDATED";
     private static final String WHATSAPP = "com.whatsapp";
     private static final String WHATSAPP_BUSINESS = "com.whatsapp.w4b";
     private ArchiveDbHelper db;
@@ -52,7 +54,9 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
                 }
 
                 long messageTime = bundle.getLong("time", 0L);
-                if (messageTime <= 0) messageTime = sbn.getPostTime() > 0 ? sbn.getPostTime() : System.currentTimeMillis();
+                if (messageTime <= 0) {
+                    messageTime = sbn.getPostTime() > 0 ? sbn.getPostTime() : System.currentTimeMillis();
+                }
                 store(sbn, sender, body, messageTime);
                 storedStructuredMessage = true;
             }
@@ -74,6 +78,7 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
         if (id > 0) {
             String snapshotPath = SnapshotRenderer.create(this, id, sender, body, postedAt, sbn.getPackageName());
             if (snapshotPath != null) db.setSnapshotPath(id, snapshotPath);
+            broadcastArchiveUpdate();
         }
     }
 
@@ -81,6 +86,13 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn) {
         if (!isWhatsApp(sbn.getPackageName())) return;
         db.markMostRecentRemoved(sbn.getKey(), System.currentTimeMillis());
+        broadcastArchiveUpdate();
+    }
+
+    private void broadcastArchiveUpdate() {
+        Intent intent = new Intent(ACTION_ARCHIVE_UPDATED);
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
     }
 
     private boolean isWhatsApp(String packageName) {
@@ -92,16 +104,12 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
         String legacy = charSequence(bundle.getCharSequence("sender"));
         if (!legacy.isEmpty()) return legacy;
 
-        // android.app.Person was added in API 28. Use reflection so the app
-        // remains loadable on Android 8.0/8.1 (API 26/27).
         if (android.os.Build.VERSION.SDK_INT >= 28) {
             try {
                 Parcelable senderPerson = bundle.getParcelable("sender_person");
                 if (senderPerson != null && "android.app.Person".equals(senderPerson.getClass().getName())) {
                     Object name = senderPerson.getClass().getMethod("getName").invoke(senderPerson);
-                    if (name instanceof CharSequence) {
-                        return charSequence((CharSequence) name);
-                    }
+                    if (name instanceof CharSequence) return charSequence((CharSequence) name);
                 }
             } catch (Exception ignored) {
             }

@@ -9,4 +9,9 @@ public class ArchiveMessage {
     public long postedAt;
     public Long removedAt;
     public String snapshotPath;
+    public String fingerprint;
+
+    public boolean isPossiblyDeleted() {
+        return removedAt != null && removedAt >= postedAt;
+    }
 }

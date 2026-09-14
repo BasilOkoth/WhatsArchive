@@ -37,7 +37,7 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // v0.1 has no migrations yet.
+        // Schema is unchanged in v0.2; existing v0.1 archives remain compatible.
     }
 
     public synchronized long insertMessage(String packageName,
@@ -63,6 +63,13 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
         getWritableDatabase().update("messages", values, "id=?", new String[]{String.valueOf(id)});
     }
 
+    public synchronized void setRemovedAt(long id, Long removedAt) {
+        ContentValues values = new ContentValues();
+        if (removedAt == null) values.putNull("removed_at");
+        else values.put("removed_at", removedAt);
+        getWritableDatabase().update("messages", values, "id=?", new String[]{String.valueOf(id)});
+    }
+
     public synchronized void markMostRecentRemoved(String notificationKey, long removedAt) {
         if (notificationKey == null) return;
         SQLiteDatabase db = getWritableDatabase();
@@ -79,18 +86,9 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
     public synchronized List<ArchiveMessage> getAll() {
         List<ArchiveMessage> result = new ArrayList<>();
         Cursor cursor = getReadableDatabase().query(
-                "messages",
-                null,
-                null,
-                null,
-                null,
-                null,
-                "posted_at DESC"
-        );
+                "messages", null, null, null, null, null, "posted_at DESC");
         try {
-            while (cursor.moveToNext()) {
-                result.add(fromCursor(cursor));
-            }
+            while (cursor.moveToNext()) result.add(fromCursor(cursor));
         } finally {
             cursor.close();
         }
@@ -112,6 +110,7 @@ public class ArchiveDbHelper extends SQLiteOpenHelper {
         int removedIndex = cursor.getColumnIndexOrThrow("removed_at");
         message.removedAt = cursor.isNull(removedIndex) ? null : cursor.getLong(removedIndex);
         message.snapshotPath = cursor.getString(cursor.getColumnIndexOrThrow("snapshot_path"));
+        message.fingerprint = cursor.getString(cursor.getColumnIndexOrThrow("fingerprint"));
         return message;
     }
 }

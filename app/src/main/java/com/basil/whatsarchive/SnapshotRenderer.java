@@ -21,34 +21,38 @@ public class SnapshotRenderer {
         try {
             int width = 1080;
             int horizontal = 72;
+
             TextPaint senderPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            senderPaint.setColor(Color.rgb(20, 20, 20));
-            senderPaint.setTextSize(54f);
+            senderPaint.setColor(Color.rgb(8, 116, 67));
+            senderPaint.setTextSize(56f);
             senderPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
             TextPaint bodyPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            bodyPaint.setColor(Color.rgb(40, 40, 40));
+            bodyPaint.setColor(Color.rgb(36, 53, 46));
             bodyPaint.setTextSize(42f);
 
             TextPaint smallPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            smallPaint.setColor(Color.rgb(95, 95, 95));
+            smallPaint.setColor(Color.rgb(99, 118, 109));
             smallPaint.setTextSize(28f);
 
             int contentWidth = width - (horizontal * 2);
+            String safeSender = sender == null ? "Unknown chat" : sender;
+            String safeBody = body == null ? "" : body;
+
             StaticLayout senderLayout = StaticLayout.Builder
-                    .obtain(sender == null ? "" : sender, 0, sender == null ? 0 : sender.length(), senderPaint, contentWidth)
+                    .obtain(safeSender, 0, safeSender.length(), senderPaint, contentWidth)
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .setIncludePad(false)
                     .build();
             StaticLayout bodyLayout = StaticLayout.Builder
-                    .obtain(body == null ? "" : body, 0, body == null ? 0 : body.length(), bodyPaint, contentWidth)
+                    .obtain(safeBody, 0, safeBody.length(), bodyPaint, contentWidth)
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .setIncludePad(false)
                     .build();
 
             String date = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault()).format(new Date(timestamp));
             String source = "Source notification: " + ("com.whatsapp.w4b".equals(packageName) ? "WhatsApp Business" : "WhatsApp");
-            String footer = date + "\n" + source + "\nArchived locally by WhatsArchive";
+            String footer = date + "\n" + source + "\nArchived locally by WhatsArchive\nDeveloped by Basil Okoth";
             StaticLayout footerLayout = StaticLayout.Builder
                     .obtain(footer, 0, footer.length(), smallPaint, contentWidth)
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
@@ -56,23 +60,29 @@ public class SnapshotRenderer {
                     .build();
 
             int height = 72 + 50 + 50 + senderLayout.getHeight() + 38 + bodyLayout.getHeight() + 60 + footerLayout.getHeight() + 72;
-            height = Math.max(height, 620);
+            height = Math.max(height, 650);
 
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
 
             Paint accent = new Paint(Paint.ANTI_ALIAS_FLAG);
-            accent.setColor(Color.rgb(23, 107, 91));
+            accent.setColor(Color.rgb(11, 163, 96));
             canvas.drawRect(0, 0, width, 22, accent);
 
             TextPaint headerPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            headerPaint.setColor(Color.rgb(23, 107, 91));
+            headerPaint.setColor(Color.rgb(7, 91, 58));
             headerPaint.setTextSize(34f);
             headerPaint.setTypeface(Typeface.DEFAULT_BOLD);
             canvas.drawText("WHATSARCHIVE • NOTIFICATION CAPTURE", horizontal, 82, headerPaint);
 
-            int y = 132;
+            TextPaint labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+            labelPaint.setColor(Color.rgb(99, 118, 109));
+            labelPaint.setTextSize(24f);
+            labelPaint.setTypeface(Typeface.DEFAULT_BOLD);
+            canvas.drawText("SENDER", horizontal, 128, labelPaint);
+
+            int y = 148;
             canvas.save();
             canvas.translate(horizontal, y);
             senderLayout.draw(canvas);
@@ -86,7 +96,7 @@ public class SnapshotRenderer {
             y += bodyLayout.getHeight() + 60;
 
             Paint rule = new Paint(Paint.ANTI_ALIAS_FLAG);
-            rule.setColor(Color.rgb(220, 220, 220));
+            rule.setColor(Color.rgb(221, 232, 226));
             canvas.drawRect(horizontal, y, width - horizontal, y + 2, rule);
             y += 30;
 

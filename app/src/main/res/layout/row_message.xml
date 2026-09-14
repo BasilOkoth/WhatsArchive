@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card"
+    android:orientation="vertical"
+    android:padding="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/rowSender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/wa_sender_name"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/rowBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/bg_badge_warning"
+            android:text="POSSIBLE DELETION"
+            android:textColor="@color/wa_warning"
+            android:textSize="9sp"
+            android:fontFamily="sans-medium"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/rowBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:textColor="@color/wa_message_body"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/rowMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:textColor="@color/wa_text_muted"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/rowTimeline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/wa_primary_dark"
+        android:textSize="10sp" />
+
+</LinearLayout>

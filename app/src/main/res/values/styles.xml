@@ -1,9 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">#FFFFFF</item>
-        <item name="android:statusBarColor">#FFFFFF</item>
-        <item name="android:colorAccent">#176B5B</item>
+        <item name="android:statusBarColor">@color/wa_bg</item>
+        <item name="android:navigationBarColor">@color/wa_surface</item>
+        <item name="android:colorAccent">@color/wa_primary</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="WaButton">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textColor">@color/wa_white</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:paddingLeft">14dp</item>
+        <item name="android:paddingRight">14dp</item>
+    </style>
+
+    <style name="WaButton.Secondary">
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:textColor">@color/wa_primary_dark</item>
+    </style>
+
+    <style name="WaButton.Danger">
+        <item name="android:background">@drawable/bg_button_danger</item>
+        <item name="android:textColor">@color/wa_danger</item>
+    </style>
+
+    <style name="WaSectionTitle">
+        <item name="android:textColor">@color/wa_text</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-medium</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.08</item>
     </style>
 </resources>

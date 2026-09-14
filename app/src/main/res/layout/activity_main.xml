@@ -1,87 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/premiumRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="WhatsArchive"
-        android:textSize="28sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/subtitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Private local archive for WhatsApp notifications"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/accessStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textStyle="bold" />
-
-    <Button
-        android:id="@+id/openAccessButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Enable notification access" />
-
-    <TextView
-        android:id="@+id/archiveCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Archived: 0" />
-
-    <EditText
-        android:id="@+id/searchBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="Search sender or message"
-        android:inputType="text" />
+    android:background="@color/wa_bg"
+    android:paddingLeft="16dp"
+    android:paddingTop="14dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="WhatsArchive logo"
+            android:src="@drawable/ic_whatsarchive" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WhatsArchive"
+                android:textColor="@color/wa_text"
+                android:textSize="24sp"
+                android:fontFamily="sans-medium" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Developed by Basil Okoth"
+                android:textColor="@color/wa_text_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/lockButton"
+            style="@style/WaButton.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="Set app lock" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/accessStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_off"
+            android:text="Checking capture status…"
+            android:textColor="@color/wa_text"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/archiveCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:text="0 archived"
+            android:textColor="@color/wa_text_muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/searchBox"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_search"
+        android:hint="Search contact, message, source or date"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:singleLine="true"
+        android:textColor="@color/wa_text"
+        android:textColorHint="@color/wa_text_muted"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/exportButton"
+        <Spinner
+            android:id="@+id/contactSpinner"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginRight="4dp"
             android:layout_weight="1"
-            android:text="Export JSON" />
+            android:background="@drawable/bg_search" />
 
-        <Button
-            android:id="@+id/deleteButton"
+        <Spinner
+            android:id="@+id/statusSpinner"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginLeft="4dp"
             android:layout_weight="1"
-            android:text="Clear archive" />
+            android:background="@drawable/bg_search" />
     </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/openAccessButton"
+                style="@style/WaButton"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="Notification access" />
+
+            <Button
+                android:id="@+id/backupButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="8dp"
+                android:text="Encrypted backup" />
+
+            <Button
+                android:id="@+id/restoreButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="8dp"
+                android:text="Restore / Import" />
+
+            <Button
+                android:id="@+id/exportButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="8dp"
+                android:text="JSON export" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                style="@style/WaButton.Danger"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="8dp"
+                android:text="Clear archive" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        style="@style/WaSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="6dp"
+        android:text="Archive timeline" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/messageList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"
+            android:listSelector="@android:color/transparent"
+            android:paddingBottom="6dp"
+            android:scrollbars="vertical" />
+
+        <TextView
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="30dp"
+            android:text="No matching archived messages yet.\nIncoming WhatsApp notifications will appear here automatically."
+            android:textAlignment="center"
+            android:textColor="@color/wa_text_muted"
+            android:textSize="14sp" />
+    </FrameLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Tap a message to view it or export its archived snapshot."
-        android:textSize="12sp" />
-
-    <ListView
-        android:id="@+id/messageList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        android:dividerHeight="1dp" />
+        android:gravity="center"
+        android:paddingTop="4dp"
+        android:text="Private by design • Local encrypted archive • v0.2"
+        android:textColor="@color/wa_text_muted"
+        android:textSize="10sp" />
 
 </LinearLayout>
