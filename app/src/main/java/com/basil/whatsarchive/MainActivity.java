@@ -262,7 +262,7 @@ public class MainActivity extends FragmentActivity {
                 );
 
         /*
-         * IMPORTANT v0.2.3 FIX:
+         * IMPORTANT v0.3.2 FIX:
          * Group by hidden conversationId, not visible sender/group name.
          * This keeps members of one group together, while two different
          * groups that happen to have the same visible name remain separate.
@@ -684,7 +684,7 @@ public class MainActivity extends FragmentActivity {
         if (clipboard != null) {
             clipboard.setPrimaryClip(
                     ClipData.newPlainText(
-                            "WhatsArchive message",
+                            "ChatArchive message",
                             safe(message.body)
                     )
             );
@@ -726,7 +726,7 @@ public class MainActivity extends FragmentActivity {
                 .append("\n\nReceived: ")
                 .append(format.format(
                         new Date(message.postedAt)))
-                .append("\nArchived locally with WhatsArchive");
+                .append("\nArchived locally with ChatArchive");
 
         Intent share =
                 new Intent(Intent.ACTION_SEND);
@@ -818,7 +818,7 @@ public class MainActivity extends FragmentActivity {
         JSONObject root = new JSONObject();
         root.put(
                 "format",
-                "whatsarchive-export");
+                "chatarchive-export");
         root.put("version", 3);
         root.put(
                 "developer",
@@ -845,7 +845,7 @@ public class MainActivity extends FragmentActivity {
                     "application/json");
             intent.putExtra(
                     Intent.EXTRA_TITLE,
-                    "whatsarchive-" +
+                    "chatarchive-" +
                             stamp() +
                             ".json");
 
@@ -888,7 +888,7 @@ public class MainActivity extends FragmentActivity {
                                 "application/octet-stream");
                         intent.putExtra(
                                 Intent.EXTRA_TITLE,
-                                "whatsarchive-secure-" +
+                                "chatarchive-secure-" +
                                         stamp() +
                                         ".wha");
 
@@ -1216,7 +1216,7 @@ public class MainActivity extends FragmentActivity {
 
         try {
             String name =
-                    "WhatsArchive_" +
+                    "ChatArchive_" +
                             new SimpleDateFormat(
                                     "yyyyMMdd_HHmmss",
                                     Locale.US)
@@ -1234,7 +1234,7 @@ public class MainActivity extends FragmentActivity {
 
             Toast.makeText(
                     this,
-                    "Snapshot saved to Gallery → Pictures/WhatsArchive",
+                    "Snapshot saved to Gallery → Pictures/ChatArchive",
                     Toast.LENGTH_LONG
             ).show();
         } catch (Exception e) {
@@ -1281,7 +1281,7 @@ public class MainActivity extends FragmentActivity {
         intent.setType("image/png");
         intent.putExtra(
                 Intent.EXTRA_TITLE,
-                "whatsarchive-message-" +
+                "chatarchive-message-" +
                         message.id +
                         ".png");
 
@@ -1404,9 +1404,9 @@ public class MainActivity extends FragmentActivity {
                 new BiometricPrompt
                         .PromptInfo.Builder()
                         .setTitle(
-                                "Unlock WhatsArchive")
+                                "Unlock ChatArchive")
                         .setSubtitle(
-                                "Use biometrics or your WhatsArchive PIN")
+                                "Use biometrics or your ChatArchive PIN")
                         .setNegativeButtonText(
                                 "Use PIN")
                         .build();

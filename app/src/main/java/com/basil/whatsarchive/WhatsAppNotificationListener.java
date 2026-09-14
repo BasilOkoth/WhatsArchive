@@ -19,15 +19,19 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
     private static final String WHATSAPP_BUSINESS = "com.whatsapp.w4b";
 
     private ArchiveDbHelper db;
+    private LicenseManager licenseManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         db = new ArchiveDbHelper(this);
+        licenseManager = new LicenseManager(this);
     }
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        // Commercial gate: an unlicensed copied APK does not capture messages.
+        if (licenseManager == null || !licenseManager.isLicensed()) return;
         if (!isWhatsApp(sbn.getPackageName())) return;
 
         Notification notification = sbn.getNotification();
@@ -46,7 +50,8 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
         String conversationId = deriveConversationId(
                 sbn, notification, conversationName);
 
-        Parcelable[] messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
+        Parcelable[] messages =
+                extras.getParcelableArray(Notification.EXTRA_MESSAGES);
         boolean storedStructuredMessage = false;
 
         if (messages != null && messages.length > 0) {
@@ -54,18 +59,26 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
                 if (!(item instanceof Bundle)) continue;
 
                 Bundle bundle = (Bundle) item;
-                String body = charSequence(bundle.getCharSequence("text"));
+                String body =
+                        charSequence(bundle.getCharSequence("text"));
                 if (body.isEmpty()) continue;
 
-                String participantName = extractMessageSender(bundle);
-                if (participantName.equalsIgnoreCase(conversationName)) {
+                String participantName =
+                        extractMessageSender(bundle);
+
+                if (participantName.equalsIgnoreCase(
+                        conversationName)) {
                     participantName = "";
                 }
 
-                String displaySender = buildDisplaySender(
-                        conversationName, participantName);
+                String displaySender =
+                        buildDisplaySender(
+                                conversationName,
+                                participantName);
 
-                long messageTime = bundle.getLong("time", 0L);
+                long messageTime =
+                        bundle.getLong("time", 0L);
+
                 if (messageTime <= 0) {
                     messageTime = sbn.getPostTime() > 0
                             ? sbn.getPostTime()
@@ -81,12 +94,14 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
                         body,
                         messageTime
                 );
+
                 storedStructuredMessage = true;
             }
         }
 
         if (!storedStructuredMessage) {
             String body = extractFallbackBody(extras);
+
             if (!body.isEmpty()) {
                 long postedAt = sbn.getPostTime() > 0
                         ? sbn.getPostTime()
@@ -105,13 +120,15 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
         }
     }
 
-    private void store(StatusBarNotification sbn,
-                       String conversationId,
-                       String conversationName,
-                       String participantName,
-                       String displaySender,
-                       String body,
-                       long postedAt) {
+    private void store(
+            StatusBarNotification sbn,
+            String conversationId,
+            String conversationName,
+            String participantName,
+            String displaySender,
+            String body,
+            long postedAt) {
+
         String key = sbn.getKey();
 
         String fingerprint = sha256(
@@ -136,20 +153,25 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
         );
 
         if (id > 0) {
-            String snapshotSender = buildSnapshotSender(
-                    conversationName, participantName);
+            String snapshotSender =
+                    buildSnapshotSender(
+                            conversationName,
+                            participantName);
 
-            String snapshotPath = SnapshotRenderer.create(
-                    this,
-                    id,
-                    snapshotSender,
-                    body,
-                    postedAt,
-                    sbn.getPackageName()
-            );
+            String snapshotPath =
+                    SnapshotRenderer.create(
+                            this,
+                            id,
+                            snapshotSender,
+                            body,
+                            postedAt,
+                            sbn.getPackageName()
+                    );
 
             if (snapshotPath != null) {
-                db.setSnapshotPath(id, snapshotPath);
+                db.setSnapshotPath(
+                        id,
+                        snapshotPath);
             }
 
             broadcastArchiveUpdate();
@@ -157,163 +179,266 @@ public class WhatsAppNotificationListener extends NotificationListenerService {
     }
 
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
+    public void onNotificationRemoved(
+            StatusBarNotification sbn) {
+
+        if (licenseManager == null
+                || !licenseManager.isLicensed()) return;
+
         if (!isWhatsApp(sbn.getPackageName())) return;
-        db.markMostRecentRemoved(sbn.getKey(), System.currentTimeMillis());
+
+        db.markMostRecentRemoved(
+                sbn.getKey(),
+                System.currentTimeMillis());
+
         broadcastArchiveUpdate();
     }
 
     private void broadcastArchiveUpdate() {
-        Intent intent = new Intent(ACTION_ARCHIVE_UPDATED);
+        Intent intent =
+                new Intent(ACTION_ARCHIVE_UPDATED);
         intent.setPackage(getPackageName());
         sendBroadcast(intent);
     }
 
     private boolean isWhatsApp(String packageName) {
-        return WHATSAPP.equals(packageName) ||
-                WHATSAPP_BUSINESS.equals(packageName);
+        return WHATSAPP.equals(packageName)
+                || WHATSAPP_BUSINESS.equals(packageName);
     }
 
-    /**
-     * Identity priority:
-     * 1) Android conversation shortcut id - normally tied to the actual chat.
-     * 2) Notification tag - often stable per WhatsApp conversation.
-     * 3) Full Android notification key.
-     * 4) Name hash only as a last-resort fallback.
-     *
-     * Raw identifiers are hashed before storage so WhatsArchive does not
-     * persist WhatsApp's internal shortcut/tag value as plain text.
-     */
-    private String deriveConversationId(StatusBarNotification sbn,
-                                        Notification notification,
-                                        String conversationName) {
-        String packageName = clean(sbn.getPackageName());
+    private String deriveConversationId(
+            StatusBarNotification sbn,
+            Notification notification,
+            String conversationName) {
 
-        String shortcutId = clean(notification.getShortcutId());
+        String packageName =
+                clean(sbn.getPackageName());
+
+        String shortcutId =
+                clean(notification.getShortcutId());
+
         if (!shortcutId.isEmpty()) {
-            return "shortcut:" + sha256(packageName + "|" + shortcutId);
+            return "shortcut:" +
+                    sha256(
+                            packageName + "|" +
+                                    shortcutId);
         }
 
         String tag = clean(sbn.getTag());
+
         if (!tag.isEmpty()) {
-            return "tag:" + sha256(packageName + "|" + tag);
+            return "tag:" +
+                    sha256(
+                            packageName + "|" +
+                                    tag);
         }
 
         String key = clean(sbn.getKey());
+
         if (!key.isEmpty()) {
-            return "key:" + sha256(packageName + "|" + key);
+            return "key:" +
+                    sha256(
+                            packageName + "|" +
+                                    key);
         }
 
-        return "name:" + sha256(
-                packageName + "|" +
-                        clean(conversationName).toLowerCase(Locale.ROOT)
-        );
+        return "name:" +
+                sha256(
+                        packageName + "|" +
+                                clean(conversationName)
+                                        .toLowerCase(
+                                                Locale.ROOT)
+                );
     }
 
     @SuppressWarnings("deprecation")
-    private String extractMessageSender(Bundle bundle) {
-        String legacy = charSequence(bundle.getCharSequence("sender"));
+    private String extractMessageSender(
+            Bundle bundle) {
+
+        String legacy =
+                charSequence(
+                        bundle.getCharSequence(
+                                "sender"));
+
         if (!legacy.isEmpty()) return legacy;
 
         if (android.os.Build.VERSION.SDK_INT >= 28) {
             try {
-                Parcelable senderPerson = bundle.getParcelable("sender_person");
-                if (senderPerson != null &&
-                        "android.app.Person".equals(senderPerson.getClass().getName())) {
-                    Object name = senderPerson.getClass()
-                            .getMethod("getName")
-                            .invoke(senderPerson);
+                Parcelable senderPerson =
+                        bundle.getParcelable(
+                                "sender_person");
+
+                if (senderPerson != null
+                        && "android.app.Person"
+                        .equals(
+                                senderPerson
+                                        .getClass()
+                                        .getName())) {
+
+                    Object name =
+                            senderPerson
+                                    .getClass()
+                                    .getMethod("getName")
+                                    .invoke(senderPerson);
+
                     if (name instanceof CharSequence) {
-                        return charSequence((CharSequence) name);
+                        return charSequence(
+                                (CharSequence) name);
                     }
                 }
             } catch (Exception ignored) {
             }
         }
+
         return "";
     }
 
-    private String extractFallbackBody(Bundle extras) {
-        String bigText = charSequence(
-                extras.getCharSequence(Notification.EXTRA_BIG_TEXT));
+    private String extractFallbackBody(
+            Bundle extras) {
+
+        String bigText =
+                charSequence(
+                        extras.getCharSequence(
+                                Notification.EXTRA_BIG_TEXT));
+
         if (!bigText.isEmpty()) return bigText;
 
-        String text = charSequence(
-                extras.getCharSequence(Notification.EXTRA_TEXT));
+        String text =
+                charSequence(
+                        extras.getCharSequence(
+                                Notification.EXTRA_TEXT));
+
         if (!text.isEmpty()) return text;
 
         CharSequence[] lines =
-                extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES);
+                extras.getCharSequenceArray(
+                        Notification.EXTRA_TEXT_LINES);
 
         if (lines != null && lines.length > 0) {
-            StringBuilder joined = new StringBuilder();
+            StringBuilder joined =
+                    new StringBuilder();
+
             for (CharSequence line : lines) {
                 if (line == null) continue;
-                if (joined.length() > 0) joined.append("\n");
+                if (joined.length() > 0) {
+                    joined.append("\n");
+                }
                 joined.append(line);
             }
+
             return joined.toString().trim();
         }
 
         return "";
     }
 
-    private String buildDisplaySender(String conversationName,
-                                      String participantName) {
-        String conversation = clean(conversationName);
-        if (conversation.isEmpty()) conversation = "Unknown chat";
+    private String buildDisplaySender(
+            String conversationName,
+            String participantName) {
 
-        String participant = clean(participantName);
-        if (!participant.isEmpty() &&
-                !participant.equalsIgnoreCase(conversation)) {
-            return conversation + " — " + participant;
+        String conversation =
+                clean(conversationName);
+
+        if (conversation.isEmpty()) {
+            conversation = "Unknown chat";
         }
+
+        String participant =
+                clean(participantName);
+
+        if (!participant.isEmpty()
+                && !participant
+                .equalsIgnoreCase(
+                        conversation)) {
+
+            return conversation +
+                    " — " +
+                    participant;
+        }
+
         return conversation;
     }
 
-    private String buildSnapshotSender(String conversationName,
-                                       String participantName) {
-        String conversation = clean(conversationName);
-        if (conversation.isEmpty()) conversation = "Unknown chat";
+    private String buildSnapshotSender(
+            String conversationName,
+            String participantName) {
 
-        String participant = clean(participantName);
-        if (!participant.isEmpty() &&
-                !participant.equalsIgnoreCase(conversation)) {
-            return participant + " • " + conversation;
+        String conversation =
+                clean(conversationName);
+
+        if (conversation.isEmpty()) {
+            conversation = "Unknown chat";
         }
+
+        String participant =
+                clean(participantName);
+
+        if (!participant.isEmpty()
+                && !participant
+                .equalsIgnoreCase(
+                        conversation)) {
+
+            return participant +
+                    " • " +
+                    conversation;
+        }
+
         return conversation;
     }
 
-    private String charSequence(CharSequence value) {
-        return value == null ? "" : value.toString().trim();
+    private String charSequence(
+            CharSequence value) {
+
+        return value == null
+                ? ""
+                : value.toString().trim();
     }
 
-    private String firstNonBlank(String... values) {
+    private String firstNonBlank(
+            String... values) {
+
         for (String value : values) {
-            if (value != null && !value.trim().isEmpty()) {
+            if (value != null
+                    && !value.trim().isEmpty()) {
                 return value.trim();
             }
         }
+
         return "";
     }
 
     private String clean(String value) {
-        return value == null ? "" : value.trim();
+        return value == null
+                ? ""
+                : value.trim();
     }
 
     private String sha256(String value) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(
-                    value.getBytes(StandardCharsets.UTF_8));
+            MessageDigest digest =
+                    MessageDigest.getInstance(
+                            "SHA-256");
 
-            StringBuilder hex = new StringBuilder();
+            byte[] hash =
+                    digest.digest(
+                            value.getBytes(
+                                    StandardCharsets.UTF_8));
+
+            StringBuilder hex =
+                    new StringBuilder();
+
             for (byte b : hash) {
-                hex.append(String.format(Locale.US, "%02x", b));
+                hex.append(
+                        String.format(
+                                Locale.US,
+                                "%02x",
+                                b));
             }
+
             return hex.toString();
         } catch (Exception e) {
-            return Integer.toHexString(value.hashCode());
+            return Integer.toHexString(
+                    value.hashCode());
         }
     }
 }

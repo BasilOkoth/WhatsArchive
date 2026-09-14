@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/wa_bg"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingTop="48dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="24dp">
+
+    <ImageView
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:contentDescription="ChatArchive logo"
+        android:src="@drawable/ic_whatsarchive" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:fontFamily="sans-medium"
+        android:text="Archive locked"
+        android:textColor="@color/wa_primary_dark"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:gravity="center"
+        android:text="Unlock to view your private message archive. Background capture continues while the archive is locked."
+        android:textColor="@color/wa_text_muted"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <EditText
+            android:id="@+id/lockPinInput"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_search"
+            android:hint="Enter PIN"
+            android:imeOptions="actionDone"
+            android:inputType="numberPassword"
+            android:maxLength="8"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:singleLine="true"
+            android:textColor="@color/wa_text"
+            android:textColorHint="@color/wa_text_muted" />
+
+        <Button
+            android:id="@+id/lockUnlockButton"
+            style="@style/WaButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:text="Unlock with PIN" />
+
+        <Button
+            android:id="@+id/lockBiometricButton"
+            style="@style/WaButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="9dp"
+            android:text="Use fingerprint / biometrics" />
+
+        <TextView
+            android:id="@+id/lockStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:textColor="@color/wa_danger"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/lockTimeoutText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:text="Auto-lock: Immediately"
+        android:textColor="@color/wa_text_muted"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/lockTimeoutButton"
+        style="@style/WaButton.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:text="Change auto-lock timing" />
+
+    <Button
+        android:id="@+id/lockExitButton"
+        style="@style/WaButton.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="10dp"
+        android:text="Leave ChatArchive" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Private archive • Screen capture is allowed after you unlock"
+        android:textColor="@color/wa_text_muted"
+        android:textSize="10sp" />
+
+</LinearLayout>

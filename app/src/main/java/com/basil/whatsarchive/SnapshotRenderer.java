@@ -44,22 +44,29 @@ public class SnapshotRenderer {
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .setIncludePad(false)
                     .build();
+
             StaticLayout bodyLayout = StaticLayout.Builder
                     .obtain(safeBody, 0, safeBody.length(), bodyPaint, contentWidth)
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .setIncludePad(false)
                     .build();
 
-            String date = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault()).format(new Date(timestamp));
-            String source = "Source notification: " + ("com.whatsapp.w4b".equals(packageName) ? "WhatsApp Business" : "WhatsApp");
-            String footer = date + "\n" + source + "\nArchived locally by WhatsArchive\nDeveloped by Basil Okoth";
+            String date = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault())
+                    .format(new Date(timestamp));
+            String source = "Source notification: "
+                    + ("com.whatsapp.w4b".equals(packageName) ? "WhatsApp Business" : "WhatsApp");
+            String footer = date + "\n" + source
+                    + "\nArchived locally by ChatArchive\nDeveloped by Basil Okoth";
+
             StaticLayout footerLayout = StaticLayout.Builder
                     .obtain(footer, 0, footer.length(), smallPaint, contentWidth)
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .setIncludePad(false)
                     .build();
 
-            int height = 72 + 50 + 50 + senderLayout.getHeight() + 38 + bodyLayout.getHeight() + 60 + footerLayout.getHeight() + 72;
+            int height = 72 + 50 + 50 + senderLayout.getHeight()
+                    + 38 + bodyLayout.getHeight() + 60
+                    + footerLayout.getHeight() + 72;
             height = Math.max(height, 650);
 
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -74,7 +81,7 @@ public class SnapshotRenderer {
             headerPaint.setColor(Color.rgb(6, 69, 47));
             headerPaint.setTextSize(34f);
             headerPaint.setTypeface(Typeface.DEFAULT_BOLD);
-            canvas.drawText("WHATSARCHIVE • NOTIFICATION CAPTURE", horizontal, 82, headerPaint);
+            canvas.drawText("CHATARCHIVE • NOTIFICATION CAPTURE", horizontal, 82, headerPaint);
 
             TextPaint labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
             labelPaint.setColor(Color.rgb(88, 108, 98));
@@ -83,6 +90,7 @@ public class SnapshotRenderer {
             canvas.drawText("SENDER", horizontal, 128, labelPaint);
 
             int y = 148;
+
             canvas.save();
             canvas.translate(horizontal, y);
             senderLayout.draw(canvas);
@@ -107,10 +115,12 @@ public class SnapshotRenderer {
 
             File dir = new File(context.getFilesDir(), "snapshots");
             if (!dir.exists() && !dir.mkdirs()) return null;
+
             File file = new File(dir, "message_" + id + ".png");
             try (FileOutputStream out = new FileOutputStream(file)) {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             }
+
             bitmap.recycle();
             return file.getAbsolutePath();
         } catch (Exception e) {

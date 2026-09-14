@@ -2,17 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
+        android:name=".WhatsArchiveApp"
         android:allowBackup="false"
         android:icon="@drawable/ic_whatsarchive"
         android:roundIcon="@drawable/ic_whatsarchive"
-        android:label="WhatsArchive"
+        android:label="ChatArchive"
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ActivationActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,9 +23,18 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LockActivity"
+            android:exported="false"
+            android:noHistory="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
         <service
             android:name=".WhatsAppNotificationListener"
-            android:label="WhatsArchive notification access"
+            android:label="ChatArchive notification access"
             android:exported="false"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>

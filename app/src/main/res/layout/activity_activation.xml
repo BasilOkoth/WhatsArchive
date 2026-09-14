@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/wa_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="22dp"
+        android:paddingTop="34dp"
+        android:paddingRight="22dp"
+        android:paddingBottom="24dp">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="ChatArchive logo"
+            android:src="@drawable/ic_whatsarchive" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:fontFamily="sans-medium"
+            android:text="ChatArchive Pro"
+            android:textColor="@color/wa_primary_dark"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="Commercial Beta • Offline activation"
+            android:textColor="@color/wa_text_muted"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-medium"
+                android:text="ACTIVATE THIS INSTALLATION"
+                android:textColor="@color/wa_primary_dark"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="After payment, send this Installation ID to the seller. A license issued for another phone will not unlock this installation."
+                android:textColor="@color/wa_text"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Installation ID"
+                android:textColor="@color/wa_text_muted"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/activationInstallationId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_search"
+                android:fontFamily="monospace"
+                android:padding="13dp"
+                android:text="WA-XXXX-XXXX-XXXX"
+                android:textColor="@color/wa_primary_dark"
+                android:textIsSelectable="true"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/copyInstallationIdButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="9dp"
+                android:text="Copy Installation ID" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="License code"
+                android:textColor="@color/wa_text_muted"
+                android:textSize="11sp" />
+
+            <EditText
+                android:id="@+id/activationLicenseInput"
+                android:layout_width="match_parent"
+                android:layout_height="112dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bg_search"
+                android:gravity="top|start"
+                android:hint="Paste CAPRO1… license code"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:padding="13dp"
+                android:textColor="@color/wa_text"
+                android:textColorHint="@color/wa_text_muted"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/pasteLicenseButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="9dp"
+                android:text="Paste license from clipboard" />
+
+            <TextView
+                android:id="@+id/activationStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/wa_danger"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/activateButton"
+                style="@style/WaButton"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:text="Activate Lifetime Pro" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="Licensing uses only this Installation ID and the signed license code. Your contacts, messages and archive are not sent anywhere."
+            android:textColor="@color/wa_text_muted"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/exitButton"
+            style="@style/WaButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="16dp"
+            android:text="Exit" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="Private by design • Device-bound license • v0.3.2"
+            android:textColor="@color/wa_text_muted"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+</ScrollView>

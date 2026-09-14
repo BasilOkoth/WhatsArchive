@@ -19,7 +19,7 @@ public final class GallerySaver {
 
     public static Uri savePng(Context context, File source, String displayName) throws Exception {
         if (source == null || !source.exists()) throw new IllegalArgumentException("Snapshot file is missing");
-        if (displayName == null || displayName.trim().isEmpty()) displayName = "WhatsArchive_snapshot.png";
+        if (displayName == null || displayName.trim().isEmpty()) displayName = "ChatArchive_snapshot.png";
         if (!displayName.toLowerCase().endsWith(".png")) displayName += ".png";
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -27,7 +27,7 @@ public final class GallerySaver {
             ContentValues values = new ContentValues();
             values.put(MediaStore.Images.Media.DISPLAY_NAME, displayName);
             values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/WhatsArchive");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/ChatArchive");
             values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
             Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -49,13 +49,15 @@ public final class GallerySaver {
         }
 
         File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File dir = new File(pictures, "WhatsArchive");
-        if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("Could not create WhatsArchive Gallery folder");
+        File dir = new File(pictures, "ChatArchive");
+        if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("Could not create ChatArchive Gallery folder");
         File target = new File(dir, displayName);
+
         try (FileInputStream in = new FileInputStream(source);
              FileOutputStream out = new FileOutputStream(target)) {
             copy(in, out);
         }
+
         Uri uri = Uri.fromFile(target);
         Intent scan = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri);
         context.sendBroadcast(scan);
