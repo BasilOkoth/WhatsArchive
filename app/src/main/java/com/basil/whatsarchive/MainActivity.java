@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class MainActivity extends FragmentActivity {
+    private static final int REQ_UNLOCK = 1000;
     private static final int REQ_EXPORT_JSON = 1001;
     private static final int REQ_EXPORT_PNG = 1002;
     private static final int REQ_EXPORT_BACKUP = 1003;
@@ -262,7 +263,7 @@ public class MainActivity extends FragmentActivity {
                 );
 
         /*
-         * IMPORTANT v0.3.2 FIX:
+         * IMPORTANT v0.3.3 FIX:
          * Group by hidden conversationId, not visible sender/group name.
          * This keeps members of one group together, while two different
          * groups that happen to have the same visible name remain separate.
@@ -1347,74 +1348,20 @@ public class MainActivity extends FragmentActivity {
             return;
         }
 
-        int canAuthenticate =
-                BiometricManager
-                        .from(this)
-                        .canAuthenticate(
-                                BiometricManager
-                                        .Authenticators
-                                        .BIOMETRIC_WEAK);
+        // MainActivity must not run a second PIN/biometric flow.
+        // LockActivity is now the single source of truth for unlocking.
+        //
+        // Clear a stale background timestamp before starting LockActivity so
+        // WhatsArchiveApp does not immediately launch a duplicate lock screen
+        // while MainActivity itself is starting.
+        security.clearBackgroundMark();
 
-        if (canAuthenticate !=
-                BiometricManager
-                        .BIOMETRIC_SUCCESS) {
-            showPinUnlockDialog();
-            return;
-        }
-
-        Executor executor =
-                command ->
-                        runOnUiThread(command);
-
-        BiometricPrompt prompt =
-                new BiometricPrompt(
-                        this,
-                        executor,
-                        new BiometricPrompt
-                                .AuthenticationCallback() {
-                            @Override
-                            public void onAuthenticationSucceeded(
-                                    BiometricPrompt
-                                            .AuthenticationResult result) {
-                                super
-                                        .onAuthenticationSucceeded(
-                                                result);
-                                completeUnlock();
-                            }
-
-                            @Override
-                            public void onAuthenticationError(
-                                    int errorCode,
-                                    CharSequence errString) {
-                                super
-                                        .onAuthenticationError(
-                                                errorCode,
-                                                errString);
-
-                                if (errorCode ==
-                                        BiometricPrompt
-                                                .ERROR_NEGATIVE_BUTTON) {
-                                    showPinUnlockDialog();
-                                }
-                            }
-                        }
-                );
-
-        BiometricPrompt.PromptInfo info =
-                new BiometricPrompt
-                        .PromptInfo.Builder()
-                        .setTitle(
-                                "Unlock ChatArchive")
-                        .setSubtitle(
-                                "Use biometrics or your ChatArchive PIN")
-                        .setNegativeButtonText(
-                                "Use PIN")
-                        .build();
-
-        prompt.authenticate(info);
+        Intent intent = new Intent(this, LockActivity.class);
+        startActivityForResult(intent, REQ_UNLOCK);
     }
 
     private void completeUnlock() {
+        security.clearBackgroundMark();
         unlocked = true;
         premiumRoot.setVisibility(
                 View.VISIBLE);
@@ -1809,6 +1756,16 @@ public class MainActivity extends FragmentActivity {
                 requestCode,
                 resultCode,
                 data);
+
+        if (requestCode == REQ_UNLOCK) {
+            if (resultCode == RESULT_OK) {
+                completeUnlock();
+            } else {
+                unlocked = false;
+                premiumRoot.setVisibility(View.INVISIBLE);
+            }
+            return;
+        }
 
         if (resultCode != RESULT_OK ||
                 data == null ||

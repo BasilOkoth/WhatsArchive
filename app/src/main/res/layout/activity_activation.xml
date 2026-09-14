@@ -167,7 +167,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:gravity="center"
-            android:text="Private by design • Device-bound license • v0.3.2"
+            android:text="Private by design • Device-bound license • v0.3.3"
             android:textColor="@color/wa_text_muted"
             android:textSize="10sp" />
 

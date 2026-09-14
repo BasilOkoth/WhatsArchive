@@ -138,7 +138,9 @@ public class LockActivity extends FragmentActivity {
 
     private void unlockAndFinish() {
         security.clearBackgroundMark();
+        setResult(RESULT_OK);
         finish();
+        overridePendingTransition(0, 0);
     }
 
     private void showCooldown() {

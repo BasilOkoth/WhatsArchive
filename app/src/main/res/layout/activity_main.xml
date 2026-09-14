@@ -195,7 +195,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="4dp"
-        android:text="Commercial Beta • Lifetime Pro • Local encrypted archive • v0.3.2"
+        android:text="Commercial Beta • Lifetime Pro • Local encrypted archive • v0.3.3"
         android:textColor="@color/wa_text_muted"
         android:textSize="10sp" />
 
