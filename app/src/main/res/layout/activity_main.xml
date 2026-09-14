@@ -18,8 +18,8 @@
         android:paddingBottom="10dp">
 
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:contentDescription="WhatsArchive logo"
             android:src="@drawable/ic_whatsarchive" />
 
@@ -33,10 +33,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-medium"
                 android:text="WhatsArchive"
-                android:textColor="@color/wa_text"
+                android:textColor="@color/wa_primary_dark"
                 android:textSize="24sp"
-                android:fontFamily="sans-medium" />
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -74,7 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
-            android:text="0 archived"
+            android:text="0 messages • 0 contacts"
             android:textColor="@color/wa_text_muted"
             android:textSize="12sp" />
     </LinearLayout>
@@ -85,7 +86,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/bg_search"
-        android:hint="Search contact, message, source or date"
+        android:hint="Search contact or message"
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:singleLine="true"
@@ -93,28 +94,12 @@
         android:textColorHint="@color/wa_text_muted"
         android:textSize="14sp" />
 
-    <LinearLayout
+    <Spinner
+        android:id="@+id/statusSpinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="46dp"
         android:layout_marginTop="8dp"
-        android:orientation="horizontal">
-
-        <Spinner
-            android:id="@+id/contactSpinner"
-            android:layout_width="0dp"
-            android:layout_height="46dp"
-            android:layout_marginRight="4dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_search" />
-
-        <Spinner
-            android:id="@+id/statusSpinner"
-            android:layout_width="0dp"
-            android:layout_height="46dp"
-            android:layout_marginLeft="4dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_search" />
-    </LinearLayout>
+        android:background="@drawable/bg_search" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -174,7 +159,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="6dp"
-        android:text="Archive timeline" />
+        android:text="CONVERSATIONS — TAP A CONTACT TO OPEN ALL MESSAGES"
+        android:textColor="@color/wa_primary_dark" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -182,7 +168,7 @@
         android:layout_weight="1">
 
         <ListView
-            android:id="@+id/messageList"
+            android:id="@+id/contactList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:cacheColorHint="@android:color/transparent"
@@ -198,7 +184,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:padding="30dp"
-            android:text="No matching archived messages yet.\nIncoming WhatsApp notifications will appear here automatically."
+            android:text="No matching conversations yet.\nIncoming WhatsApp notifications will be grouped here by contact."
             android:textAlignment="center"
             android:textColor="@color/wa_text_muted"
             android:textSize="14sp" />
@@ -209,7 +195,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="4dp"
-        android:text="Private by design • Local encrypted archive • v0.2"
+        android:text="Private by design • Local encrypted archive • v0.2.2"
         android:textColor="@color/wa_text_muted"
         android:textSize="10sp" />
 

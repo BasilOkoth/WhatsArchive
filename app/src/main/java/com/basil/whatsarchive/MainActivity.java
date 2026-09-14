@@ -22,6 +22,8 @@ import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,12 +50,11 @@ import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class MainActivity extends FragmentActivity {
@@ -70,13 +71,11 @@ public class MainActivity extends FragmentActivity {
     private TextView archiveCount;
     private TextView emptyState;
     private EditText searchBox;
-    private Spinner contactSpinner;
     private Spinner statusSpinner;
     private Button lockButton;
-    private ListView listView;
-    private ArchiveMessageAdapter adapter;
-    private final List<ArchiveMessage> visibleMessages = new ArrayList<>();
-    private boolean updatingFilters = false;
+    private ListView contactList;
+    private ContactSummaryAdapter contactAdapter;
+    private final List<ContactSummary> visibleContacts = new ArrayList<>();
     private boolean unlocked = false;
 
     private String pendingJson;
@@ -117,16 +116,15 @@ public class MainActivity extends FragmentActivity {
         archiveCount = findViewById(R.id.archiveCount);
         emptyState = findViewById(R.id.emptyState);
         searchBox = findViewById(R.id.searchBox);
-        contactSpinner = findViewById(R.id.contactSpinner);
         statusSpinner = findViewById(R.id.statusSpinner);
         lockButton = findViewById(R.id.lockButton);
-        listView = findViewById(R.id.messageList);
+        contactList = findViewById(R.id.contactList);
     }
 
     private void configureUi() {
-        adapter = new ArchiveMessageAdapter(this);
-        listView.setAdapter(adapter);
-        listView.setEmptyView(emptyState);
+        contactAdapter = new ContactSummaryAdapter(this);
+        contactList.setAdapter(contactAdapter);
+        contactList.setEmptyView(emptyState);
 
         Button openAccessButton = findViewById(R.id.openAccessButton);
         Button backupButton = findViewById(R.id.backupButton);
@@ -143,22 +141,18 @@ public class MainActivity extends FragmentActivity {
 
         statusSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
                 Arrays.asList("All records", "Possible deletion", "Notification still present", "WhatsApp Business")));
+        statusSpinner.setOnItemSelectedListener(new SimpleItemSelectedListener(this::refreshMessages));
 
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { if (!updatingFilters) refreshMessages(); }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { refreshMessages(); }
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        contactSpinner.setOnItemSelectedListener(new SimpleItemSelectedListener(() -> {
-            if (!updatingFilters) refreshMessages();
-        }));
-        statusSpinner.setOnItemSelectedListener(new SimpleItemSelectedListener(() -> {
-            if (!updatingFilters) refreshMessages();
-        }));
-
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (position >= 0 && position < visibleMessages.size()) showMessage(visibleMessages.get(position));
+        contactList.setOnItemClickListener((parent, view, position, id) -> {
+            if (position >= 0 && position < visibleContacts.size()) {
+                showContactThread(visibleContacts.get(position).sender);
+            }
         });
     }
 
@@ -207,59 +201,138 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void refreshMessages() {
-        List<ArchiveMessage> all = db.getAll();
-        String currentContact = selected(contactSpinner, "All contacts");
-        String currentStatus = selected(statusSpinner, "All records");
-        updateContactChoices(all, currentContact);
+        if (db == null || statusSpinner == null || contactAdapter == null) return;
 
-        String query = searchBox == null ? "" : searchBox.getText().toString().trim().toLowerCase(Locale.ROOT);
-        visibleMessages.clear();
+        List<ArchiveMessage> all = db.getAll();
         int possibleCount = 0;
+        for (ArchiveMessage message : all) if (message.isPossiblyDeleted()) possibleCount++;
+
+        String selectedStatus = selected(statusSpinner, "All records");
+        String query = searchBox == null ? "" : searchBox.getText().toString().trim().toLowerCase(Locale.ROOT);
         SimpleDateFormat searchDate = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault());
 
+        Map<String, List<ArchiveMessage>> grouped = new LinkedHashMap<>();
         for (ArchiveMessage message : all) {
-            if (message.isPossiblyDeleted()) possibleCount++;
-
-            String selectedContact = selected(contactSpinner, "All contacts");
-            if (!"All contacts".equals(selectedContact) && !selectedContact.equals(message.sender)) continue;
-
-            String selectedStatus = selected(statusSpinner, "All records");
-            if ("Possible deletion".equals(selectedStatus) && !message.isPossiblyDeleted()) continue;
-            if ("Notification still present".equals(selectedStatus) && message.removedAt != null) continue;
-            if ("WhatsApp Business".equals(selectedStatus) && !"com.whatsapp.w4b".equals(message.packageName)) continue;
-
-            String source = "com.whatsapp.w4b".equals(message.packageName) ? "WhatsApp Business" : "WhatsApp";
-            String haystack = (message.sender + "\n" + message.body + "\n" + source + "\n" +
-                    searchDate.format(new Date(message.postedAt))).toLowerCase(Locale.ROOT);
-            if (!query.isEmpty() && !haystack.contains(query)) continue;
-
-            visibleMessages.add(message);
+            if (!matchesStatus(message, selectedStatus)) continue;
+            String sender = safeSender(message.sender);
+            grouped.computeIfAbsent(sender, k -> new ArrayList<>()).add(message);
         }
 
-        adapter.setItems(visibleMessages);
-        archiveCount.setText(all.size() + " archived  •  " + possibleCount + " possible deletions  •  " + visibleMessages.size() + " shown");
+        visibleContacts.clear();
+        for (Map.Entry<String, List<ArchiveMessage>> entry : grouped.entrySet()) {
+            String sender = entry.getKey();
+            List<ArchiveMessage> messages = entry.getValue();
+            if (messages.isEmpty()) continue;
+
+            boolean searchMatches = query.isEmpty() || sender.toLowerCase(Locale.ROOT).contains(query);
+            if (!searchMatches) {
+                for (ArchiveMessage message : messages) {
+                    String source = "com.whatsapp.w4b".equals(message.packageName) ? "WhatsApp Business" : "WhatsApp";
+                    String haystack = (safe(message.body) + "\n" + source + "\n" +
+                            searchDate.format(new Date(message.postedAt))).toLowerCase(Locale.ROOT);
+                    if (haystack.contains(query)) {
+                        searchMatches = true;
+                        break;
+                    }
+                }
+            }
+            if (!searchMatches) continue;
+
+            ArchiveMessage latest = messages.get(0);
+            ContactSummary summary = new ContactSummary();
+            summary.sender = sender;
+            summary.latestBody = safe(latest.body);
+            summary.latestAt = latest.postedAt;
+            summary.messageCount = messages.size();
+            summary.packageName = latest.packageName;
+            int deleted = 0;
+            for (ArchiveMessage message : messages) if (message.isPossiblyDeleted()) deleted++;
+            summary.possibleDeletionCount = deleted;
+            visibleContacts.add(summary);
+        }
+
+        contactAdapter.setItems(visibleContacts);
+        archiveCount.setText(all.size() + " messages  •  " + visibleContacts.size() + " contacts shown  •  " +
+                possibleCount + " possible deletions");
     }
 
-    private void updateContactChoices(List<ArchiveMessage> all, String preferred) {
-        Set<String> set = new LinkedHashSet<>();
-        for (ArchiveMessage message : all) {
-            if (message.sender != null && !message.sender.trim().isEmpty()) set.add(message.sender.trim());
-        }
-        List<String> contacts = new ArrayList<>(set);
-        Collections.sort(contacts, String.CASE_INSENSITIVE_ORDER);
-        contacts.add(0, "All contacts");
+    private boolean matchesStatus(ArchiveMessage message, String status) {
+        if ("Possible deletion".equals(status)) return message.isPossiblyDeleted();
+        if ("Notification still present".equals(status)) return message.removedAt == null;
+        if ("WhatsApp Business".equals(status)) return "com.whatsapp.w4b".equals(message.packageName);
+        return true;
+    }
 
-        updatingFilters = true;
-        ArrayAdapter<String> contactAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, contacts);
-        contactSpinner.setAdapter(contactAdapter);
-        int index = contacts.indexOf(preferred);
-        contactSpinner.setSelection(index >= 0 ? index : 0, false);
-        updatingFilters = false;
+    private String safeSender(String sender) {
+        return sender == null || sender.trim().isEmpty() ? "Unknown chat" : sender.trim();
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 
     private String selected(Spinner spinner, String fallback) {
         if (spinner == null || spinner.getSelectedItem() == null) return fallback;
         return spinner.getSelectedItem().toString();
+    }
+
+    private void showContactThread(String sender) {
+        List<ArchiveMessage> messages = new ArrayList<>();
+        for (ArchiveMessage message : db.getAll()) {
+            if (safeSender(message.sender).equals(sender)) messages.add(message);
+        }
+
+        if (messages.isEmpty()) {
+            Toast.makeText(this, "No archived messages for this contact", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(dp(10), dp(6), dp(10), 0);
+
+        TextView summary = new TextView(this);
+        summary.setText(messages.size() + (messages.size() == 1 ? " archived message" : " archived messages") +
+                " • tap a message for details");
+        summary.setTextColor(getColor(R.color.wa_text_muted));
+        summary.setTextSize(12f);
+        summary.setPadding(dp(8), dp(2), dp(8), dp(8));
+        container.addView(summary);
+
+        ListView threadList = new ListView(this);
+        threadList.setDividerHeight(dp(8));
+        threadList.setDivider(null);
+        threadList.setCacheColorHint(getColor(android.R.color.transparent));
+        threadList.setPadding(0, 0, 0, dp(4));
+
+        ArchiveMessageAdapter threadAdapter = new ArchiveMessageAdapter(this, new ArchiveMessageAdapter.ActionListener() {
+            @Override public void onOpen(ArchiveMessage message) { showMessage(message); }
+            @Override public void onShare(ArchiveMessage message) { shareMessage(message); }
+            @Override public void onSnapshot(ArchiveMessage message) { showSnapshotActions(message); }
+        });
+        threadAdapter.setItems(messages);
+        threadList.setAdapter(threadAdapter);
+
+        int threadHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.62f);
+        container.addView(threadList, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, threadHeight));
+
+        SpannableString title = new SpannableString(sender);
+        title.setSpan(new ForegroundColorSpan(getColor(R.color.wa_sender_name)), 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(container)
+                .setNegativeButton("Close", null)
+                .create();
+        dialog.setOnShowListener(d -> {
+            Window window = dialog.getWindow();
+            if (window != null) {
+                int height = (int) (getResources().getDisplayMetrics().heightPixels * 0.82f);
+                window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, height);
+            }
+        });
+        dialog.show();
     }
 
     private void showMessage(ArchiveMessage message) {
@@ -270,32 +343,43 @@ public class MainActivity extends FragmentActivity {
                 .append("✓ Archived locally: immediately after notification capture\n");
         if (message.removedAt != null) {
             timeline.append("! Notification removed: ").append(format.format(new Date(message.removedAt))).append("\n")
-                    .append("  Possible deletion — this can also happen when a notification is opened, dismissed or replaced.\n");
+                    .append("Possible deletion — removal can also happen when a notification is opened, dismissed or replaced.\n");
         } else {
             timeline.append("○ Notification removal: not observed\n");
         }
 
-        String text = message.body + "\n\n" + timeline;
-        SpannableString senderTitle = new SpannableString(message.sender == null ? "Unknown chat" : message.sender);
+        SpannableString senderTitle = new SpannableString(safeSender(message.sender));
         senderTitle.setSpan(new ForegroundColorSpan(getColor(R.color.wa_sender_name)), 0, senderTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        AlertDialog dialog = new AlertDialog.Builder(this)
+
+        new AlertDialog.Builder(this)
                 .setTitle(senderTitle)
-                .setMessage(text)
+                .setMessage(safe(message.body) + "\n\n" + timeline)
                 .setNegativeButton("Close", null)
                 .setNeutralButton("Copy", (d, which) -> copyMessage(message))
-                .setPositiveButton("Snapshot", null)
-                .create();
-
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v ->
-                showSnapshotActions(message)));
-        dialog.show();
+                .setPositiveButton("Share", (d, which) -> shareMessage(message))
+                .show();
     }
 
     private void copyMessage(ArchiveMessage message) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (clipboard != null) {
-            clipboard.setPrimaryClip(ClipData.newPlainText("WhatsArchive message", message.body));
+            clipboard.setPrimaryClip(ClipData.newPlainText("WhatsArchive message", safe(message.body)));
             Toast.makeText(this, "Message copied", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareMessage(ArchiveMessage message) {
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
+        String shareText = safeSender(message.sender) + "\n" + safe(message.body) +
+                "\n\nReceived: " + format.format(new Date(message.postedAt)) +
+                "\nArchived locally with WhatsArchive";
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT, shareText);
+        try {
+            startActivity(Intent.createChooser(share, "Share archived message"));
+        } catch (Exception e) {
+            Toast.makeText(this, "No app available to share this message", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -401,9 +485,9 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void showSnapshotActions(ArchiveMessage message) {
-        String[] options = {"Save to Gallery", "Export to file"};
+        String[] options = {"Save snapshot to Gallery", "Export snapshot PNG to file"};
         new AlertDialog.Builder(this)
-                .setTitle("Snapshot")
+                .setTitle("Snapshot / Export")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) saveSnapshotToGallery(message);
                     else exportSnapshot(message);
@@ -440,7 +524,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void exportSnapshot(ArchiveMessage message) {
-        if (message.snapshotPath == null) {
+        if (message == null || message.snapshotPath == null) {
             Toast.makeText(this, "No snapshot is available for this record", Toast.LENGTH_LONG).show();
             return;
         }
@@ -721,7 +805,7 @@ public class MainActivity extends FragmentActivity {
                     while ((read = in.read(buffer)) != -1) out.write(buffer, 0, read);
                 }
                 pendingSnapshot = null;
-                Toast.makeText(this, "Snapshot exported", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Snapshot PNG exported", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Toast.makeText(this, "File operation failed: " + e.getMessage(), Toast.LENGTH_LONG).show();

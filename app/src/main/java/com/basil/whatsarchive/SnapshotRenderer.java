@@ -23,16 +23,16 @@ public class SnapshotRenderer {
             int horizontal = 72;
 
             TextPaint senderPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            senderPaint.setColor(Color.rgb(8, 116, 67));
-            senderPaint.setTextSize(56f);
+            senderPaint.setColor(Color.rgb(6, 63, 43));
+            senderPaint.setTextSize(58f);
             senderPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
             TextPaint bodyPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            bodyPaint.setColor(Color.rgb(36, 53, 46));
+            bodyPaint.setColor(Color.rgb(26, 43, 36));
             bodyPaint.setTextSize(42f);
 
             TextPaint smallPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            smallPaint.setColor(Color.rgb(99, 118, 109));
+            smallPaint.setColor(Color.rgb(88, 108, 98));
             smallPaint.setTextSize(28f);
 
             int contentWidth = width - (horizontal * 2);
@@ -64,20 +64,20 @@ public class SnapshotRenderer {
 
             Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
-            canvas.drawColor(Color.WHITE);
+            canvas.drawColor(Color.rgb(240, 245, 242));
 
             Paint accent = new Paint(Paint.ANTI_ALIAS_FLAG);
-            accent.setColor(Color.rgb(11, 163, 96));
-            canvas.drawRect(0, 0, width, 22, accent);
+            accent.setColor(Color.rgb(10, 106, 67));
+            canvas.drawRect(0, 0, width, 24, accent);
 
             TextPaint headerPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            headerPaint.setColor(Color.rgb(7, 91, 58));
+            headerPaint.setColor(Color.rgb(6, 69, 47));
             headerPaint.setTextSize(34f);
             headerPaint.setTypeface(Typeface.DEFAULT_BOLD);
             canvas.drawText("WHATSARCHIVE • NOTIFICATION CAPTURE", horizontal, 82, headerPaint);
 
             TextPaint labelPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-            labelPaint.setColor(Color.rgb(99, 118, 109));
+            labelPaint.setColor(Color.rgb(88, 108, 98));
             labelPaint.setTextSize(24f);
             labelPaint.setTypeface(Typeface.DEFAULT_BOLD);
             canvas.drawText("SENDER", horizontal, 128, labelPaint);
@@ -96,7 +96,7 @@ public class SnapshotRenderer {
             y += bodyLayout.getHeight() + 60;
 
             Paint rule = new Paint(Paint.ANTI_ALIAS_FLAG);
-            rule.setColor(Color.rgb(221, 232, 226));
+            rule.setColor(Color.rgb(188, 208, 197));
             canvas.drawRect(horizontal, y, width - horizontal, y + 2, rule);
             y += 30;
 
