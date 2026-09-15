@@ -10,8 +10,8 @@
     <application
         android:name=".ChatArchiveApp"
         android:allowBackup="false"
-        android:icon="@drawable/ic_whatsarchive"
-        android:roundIcon="@drawable/ic_whatsarchive"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="ChatArchive"
         android:theme="@style/AppTheme">
 
@@ -60,9 +60,11 @@
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
+
             <meta-data
                 android:name="android.service.notification.default_filter_types"
                 android:value="conversations|alerting" />
+
             <meta-data
                 android:name="android.service.notification.disabled_filter_types"
                 android:value="ongoing|silent" />
