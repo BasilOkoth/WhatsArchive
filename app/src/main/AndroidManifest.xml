@@ -10,8 +10,8 @@
     <application
         android:name=".ChatArchiveApp"
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@mipmap/chatarchive_icon"
+        android:roundIcon="@mipmap/chatarchive_icon_round"
         android:label="ChatArchive"
         android:theme="@style/AppTheme">
 
