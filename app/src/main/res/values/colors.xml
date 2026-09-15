@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="wa_bg">#E6EEE9</color>
+    <color name="wa_surface">#F0F5F2</color>
+    <color name="wa_surface_deep">#E2ECE6</color>
+    <color name="wa_primary">#0A6A43</color>
+    <color name="wa_primary_dark">#06452F</color>
+    <color name="wa_primary_soft">#D7E8DE</color>
+    <color name="wa_text">#10241C</color>
+    <color name="wa_sender_name">#063F2B</color>
+    <color name="wa_message_body">#1A2B24</color>
+    <color name="wa_text_muted">#586C62</color>
+    <color name="wa_border">#BCD0C5</color>
+    <color name="wa_warning">#975200</color>
+    <color name="wa_warning_bg">#F7E9CF</color>
+    <color name="wa_danger">#9F241A</color>
+    <color name="wa_danger_bg">#F4E4E2</color>
+    <color name="wa_success">#075A3A</color>
+    <color name="wa_success_bg">#DDECE4</color>
+    <color name="wa_white">#FFFFFF</color>
     <color name="chatarchive_launcher_bg">#000000</color>
 </resources>
