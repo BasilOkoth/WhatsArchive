@@ -1,48 +1,44 @@
-# WhatsArchive v0.2.1 Premium
+# ChatArchive
 
-**Developed by Basil Okoth**
+**A product of Elimara Technologies Limited**  
+Created by Basil Okoth.
 
-WhatsArchive is a personal Android notification archive for WhatsApp and WhatsApp Business. It captures notification content locally when Android receives it and preserves an independent encrypted archive on the device.
+ChatArchive is a privacy-focused Android utility that creates a local archive from supported WhatsApp and WhatsApp Business notifications. It groups records by conversation, preserves message context, supports local encrypted storage, and can retain attachment bytes when Android exposes a readable attachment URI through the notification.
 
-## Premium features
 
-- Automatic live refresh when new WhatsApp notifications are captured
-- Encrypted local message storage using Android Keystore AES-GCM
-- Biometric/PIN app lock
-- Contact filter and status filter
-- Search across sender, message text, source and date
-- Clear visual separation between sender name and message body
-- Possible-deletion indicator when Android reports that a notification was removed
-- Timeline: Received → Archived → Notification removed
-- Encrypted portable `.wha` backup and restore
+## Play release identity
+
+- application ID: `com.elimara.chatarchive`
+- compile/target SDK: 36
+- version: 0.6.0 (`versionCode 14`)
+
+## v0.6.0 highlights
+
+- conversation-based local message archive
+- possible-notification-removal indicator
+- private attachment retention where Android permits it
+- attachment **Open / Save / Share / Export** actions
+- message snapshots
+- search and conversation grouping
+- PIN / biometric app lock
+- encrypted archive backup and restore
 - JSON export
-- PNG evidence snapshots
-- **Save snapshot directly to Gallery → Pictures/WhatsArchive**
-- WhatsApp and WhatsApp Business support
-- Premium native Android styling
+- Google Play **Free + Lifetime Pro** model
+- one-time Play product: `chatarchive_pro_lifetime`
+- Elimara Technologies Limited product branding
 
 ## Important limitation
 
-WhatsArchive can archive only information Android exposes in the notification. A notification being removed does **not** by itself prove that the sender used "Delete for everyone"; therefore the app labels these records as **Possible deletion** rather than making a definitive claim.
-
-## Privacy
-
-The app does not request Internet permission. Message sender/body fields are encrypted locally. Snapshots remain app-private unless you explicitly choose **Save to Gallery** or export them.
+ChatArchive cannot reconstruct a photo, document, video or voice note that Android/WhatsApp never exposes to the notification listener. When only attachment metadata is visible, ChatArchive records that fact rather than claiming the file was recovered.
 
 ## Build
 
-The repository contains `.github/workflows/build-apk.yml`. Push the project to GitHub and the workflow builds `app-debug.apk` automatically.
+See `BUILD_APK.md`.
 
-Build stack:
-- Java 17
-- Gradle 8.9
-- Android API 35
-- minSdk 26
+## Google Play
 
-## Install
+See `PLAY_CONSOLE_SETUP.md`.
 
-Build/download the debug APK, install it on Android, then enable:
+## Privacy direction
 
-**Settings → Special app access → Notification access → WhatsArchive**
-
-On Android versions that restrict sideloaded sensitive permissions, you may first need to open WhatsArchive's App info menu and choose **Allow restricted settings**.
+The archive is designed to remain local to the user's device unless the user explicitly chooses to export/share it. Before publishing, ensure your Play Store privacy policy and Data Safety answers exactly match the final production behavior.

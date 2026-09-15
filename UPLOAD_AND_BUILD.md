@@ -1,12 +1,12 @@
-# Upload and build WhatsArchive v0.2.1
+# Upload and build
 
-1. Create or open your GitHub repository.
-2. Upload **all files and folders inside this project folder**, including the hidden `.github` folder.
-3. Commit to `main`.
-4. Open the repository's **Actions** tab.
-5. Select **Build WhatsArchive APK**.
-6. The push should trigger it automatically; alternatively use **Run workflow**.
-7. When the build is green, download the `WhatsArchive-debug-apk` artifact.
-8. Extract the artifact and install `app-debug.apk` on your Android phone.
+1. Upload the complete contents of this folder to the root of the GitHub repository.
+2. Commit to `main`.
+3. GitHub Actions will run the Android debug build workflow.
+4. Download the `ChatArchive-debug-apk` artifact for device testing.
+5. For Google Play, generate a **signed Android App Bundle (AAB)** in Android Studio.
+6. Create ChatArchive in Play Console with package `com.elimara.chatarchive`.
+7. Upload the AAB to **Internal testing** before production.
+8. Create the one-time product `chatarchive_pro_lifetime` before testing billing.
 
-If Android refuses to update an older debug build because of a signing mismatch, uninstall the older WhatsArchive first and then install this build. This full replacement package assumes you do not need to retain the previous local archive.
+See `PLAY_CONSOLE_SETUP.md` and `PRIVACY_POLICY.md`.

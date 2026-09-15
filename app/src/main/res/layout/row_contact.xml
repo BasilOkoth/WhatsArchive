@@ -2,94 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_card"
-    android:orientation="vertical"
+    android:background="@drawable/bg_message_card"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:padding="12dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="top"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/contactSender"
-            android:layout_width="0dp"
+            android:id="@+id/contactName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:ellipsize="end"
-            android:fontFamily="sans-medium"
-            android:maxLines="2"
-            android:paddingRight="8dp"
+            android:maxLines="1"
             android:textColor="@color/wa_sender_name"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/contactCount"
-            android:layout_width="wrap_content"
+            android:id="@+id/contactPreview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_contact_count"
-            android:fontFamily="sans-medium"
-            android:paddingLeft="10dp"
-            android:paddingTop="4dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="4dp"
-            android:textColor="@color/wa_primary_dark"
-            android:textSize="10sp" />
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/wa_message_body"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/contactMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/wa_text_muted"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/contactIdentity"
+        android:id="@+id/contactCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:fontFamily="sans-medium"
-        android:textColor="@color/wa_text_muted"
-        android:textSize="10sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/contactLatest"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textColor="@color/wa_message_body"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/contactMeta"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:textColor="@color/wa_text_muted"
-        android:textSize="11sp" />
-
-    <TextView
-        android:id="@+id/contactWarning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="7dp"
-        android:background="@drawable/bg_badge_warning"
-        android:fontFamily="sans-medium"
-        android:paddingLeft="8dp"
-        android:paddingTop="3dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="3dp"
-        android:textColor="@color/wa_warning"
-        android:textSize="10sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
-        android:fontFamily="sans-medium"
-        android:gravity="end"
-        android:text="Open conversation  ›"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/bg_contact_count"
+        android:paddingLeft="9dp"
+        android:paddingTop="5dp"
+        android:paddingRight="9dp"
+        android:paddingBottom="5dp"
         android:textColor="@color/wa_primary_dark"
-        android:textSize="11sp" />
-
+        android:textSize="11sp"
+        android:textStyle="bold" />
 </LinearLayout>

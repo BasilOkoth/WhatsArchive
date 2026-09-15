@@ -42,9 +42,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Developed by Basil Okoth"
+                android:text="A product of Elimara Technologies Limited"
                 android:textColor="@color/wa_text_muted"
-                android:textSize="12sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <Button
@@ -120,6 +120,14 @@
                 android:text="Notification access" />
 
             <Button
+                android:id="@+id/proButton"
+                style="@style/WaButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="8dp"
+                android:text="Upgrade to Pro" />
+
+            <Button
                 android:id="@+id/backupButton"
                 style="@style/WaButton.Secondary"
                 android:layout_width="wrap_content"
@@ -159,8 +167,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="6dp"
-        android:text="CONVERSATIONS — TAP TO OPEN ALL MESSAGES"
-        android:textColor="@color/wa_primary_dark" />
+        android:text="CONVERSATIONS — TAP TO OPEN ALL MESSAGES" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -175,8 +182,7 @@
             android:divider="@android:color/transparent"
             android:dividerHeight="8dp"
             android:listSelector="@android:color/transparent"
-            android:paddingBottom="6dp"
-            android:scrollbars="vertical" />
+            android:paddingBottom="6dp" />
 
         <TextView
             android:id="@+id/emptyState"
@@ -184,7 +190,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:padding="30dp"
-            android:text="No matching conversations yet.\nIncoming WhatsApp notifications will be grouped by their conversation identity."
+            android:text="No matching conversations yet.
+Incoming supported WhatsApp notifications will appear here."
             android:textAlignment="center"
             android:textColor="@color/wa_text_muted"
             android:textSize="14sp" />
@@ -195,8 +202,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="4dp"
-        android:text="Commercial Beta • Lifetime Pro • Local encrypted archive • v0.3.3"
+        android:text="ChatArchive • Elimara Technologies Limited • Free + Lifetime Pro • v0.6.0"
         android:textColor="@color/wa_text_muted"
         android:textSize="10sp" />
-
 </LinearLayout>

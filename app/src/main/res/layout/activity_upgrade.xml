@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/wa_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="22dp"
+        android:paddingTop="28dp"
+        android:paddingRight="22dp"
+        android:paddingBottom="28dp">
+
+        <ImageView
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="ChatArchive logo"
+            android:src="@drawable/ic_whatsarchive" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:fontFamily="sans-medium"
+            android:text="ChatArchive Pro"
+            android:textColor="@color/wa_primary_dark"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Keep the core archive free. Unlock the professional tools once and keep them."
+            android:textColor="@color/wa_text_muted"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/proStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Checking Google Play…"
+                android:textColor="@color/wa_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/proPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Local price shown by Google Play"
+                android:textColor="@color/wa_primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/WaSectionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="LIFETIME PRO INCLUDES" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:lineSpacingExtra="6dp"
+            android:text="✓ Encrypted archive backups&#10;✓ Restore and import on another device&#10;✓ JSON archive export&#10;✓ Future premium archive and attachment tools&#10;✓ One-time purchase — no recurring subscription"
+            android:textColor="@color/wa_text"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/buyProButton"
+            style="@style/WaButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="24dp"
+            android:text="Unlock Lifetime Pro" />
+
+        <Button
+            android:id="@+id/restorePurchaseButton"
+            style="@style/WaButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="Restore Google Play purchase" />
+
+        <Button
+            android:id="@+id/continueFreeButton"
+            style="@style/WaButton.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="Continue with Free" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="Payments are processed by Google Play. The price and currency shown at checkout are localized for the user's Play country."
+            android:textColor="@color/wa_text_muted"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+</ScrollView>

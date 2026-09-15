@@ -3,15 +3,15 @@ plugins {
 }
 
 android {
-    namespace = "com.basil.whatsarchive"
-    compileSdk = 35
+    namespace = "com.elimara.chatarchive"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.basil.whatsarchive"
+        applicationId = "com.elimara.chatarchive"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 11
-        versionName = "0.3.3"
+        targetSdk = 36
+        versionCode = 14
+        versionName = "0.6.0"
     }
 
     compileOptions {
@@ -32,4 +32,7 @@ android {
 
 dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.core:core:1.13.1")
+    implementation("androidx.fragment:fragment:1.8.5")
+    implementation("com.android.billingclient:billing:9.1.0")
 }

@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WhatsArchive"
+rootProject.name = "ChatArchive"
 include(":app")

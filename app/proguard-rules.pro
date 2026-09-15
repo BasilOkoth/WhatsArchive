@@ -1,1 +1,2 @@
-# No custom rules required for v0.1.
+# ChatArchive currently keeps release minification disabled.
+# Add keep rules here if release minification is enabled later.
